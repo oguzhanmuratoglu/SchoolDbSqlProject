@@ -161,3 +161,47 @@ BEGIN
 END
 
 ```
+
+# VIEWS
+- # "ClassStudentCount" Adlı SQL VIEW
+Bu SQL VIEW, her sınıfın adını ve bu sınıfta kayıtlı öğrenci sayısını görüntülemek için kullanılır. İşlevi aşağıdaki adımlardan oluşur:
+
+1- Sınıfları ve Öğrenci Sayısını Alır: VIEW, "Classes" ve "Students" tablolarını birleştirir ve her sınıfın adını ("ClassName") ve o sınıftaki öğrenci sayısını ("StudentCount") hesaplar.
+
+2- Sol Dış Birleştirme Kullanır: Sınıfın öğrencisi olmayanlar da dahil olmak üzere tüm sınıfları görüntülemek için sol dış birleştirme kullanır.
+
+3- Sonuçları Gruplandırır: Her sınıf için benzersiz bir kayıt elde etmek için sonuçları sınıf adına göre gruplandırır.
+
+```TSQL
+
+CREATE VIEW ClassStudentCount AS
+SELECT C.Name AS ClassName, COUNT(S.Id) AS StudentCount
+FROM dbo.Classes AS C
+LEFT OUTER JOIN dbo.Students AS S ON C.Id = S.ClassId
+GROUP BY C.Name;
+
+
+```
+
+- # "CourseTeacherDetails" Adlı SQL VIEW
+Bu SQL VIEW, her dersin adını ("CourseName"), bu dersi öğreten öğretmenin adını ("TeacherName") ve soyadını ("TeacherLastName") gösterir. Ayrıca, her dersin kaç farklı öğretmen tarafından öğretildiğini sayar ("TeacherCount"). İşlevi aşağıdaki adımlardan oluşur:
+
+1- Ders, Sınav ve Öğretmen Bilgilerini Birleştirir: VIEW, "Lessons," "Exams," ve "Teachers" tablolarını birleştirir. Dersler ("Lessons") ile sınavlar ("Exams") arasındaki ilişkiyi kullanarak her dersin öğretmenini bulur.
+
+2- Ders, Öğretmen ve Öğretmen Sayısını Seçer: Ders adı, öğretmen adı, öğretmen soyadı ve kaç farklı öğretmen tarafından öğretildiği bilgilerini seçer.
+
+3- Sonuçları Gruplandırır: Her ders için benzersiz bir kayıt elde etmek için sonuçları ders adına, öğretmen adına ve öğretmen soyadına göre gruplandırır.
+
+```TSQL
+CREATE VIEW CourseTeacherDetails AS
+SELECT
+    L.Name AS CourseName,
+    T.Name AS TeacherName,
+    T.LastName AS TeacherLastName,
+    COUNT(DISTINCT T.Id) AS TeacherCount
+FROM Lessons AS L
+LEFT JOIN Exams AS E ON L.Id = E.LessonId
+LEFT JOIN Teachers AS T ON E.TeacherId = T.Id
+GROUP BY L.Name, T.Name, T.LastName;
+
+```
